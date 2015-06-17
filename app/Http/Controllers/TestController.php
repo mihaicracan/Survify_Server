@@ -12,8 +12,7 @@ class TestController extends Controller {
 
         $data = Test::all()->toJson();
 
-        var_dump($data); die();
-        return "Buna :)";
+        return view("test");
     }
 
 }
