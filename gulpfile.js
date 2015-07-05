@@ -6,13 +6,25 @@ elixir.config.registerWatcher("imagemin", "resources/assets/img/**/*");
 require("./elixir-tasks");
 
 elixir(function(mix) {
-    mix.sass([
+    mix
+        .sass([
+        "resources/bootstrap.scss",
         "app.scss",
-        "style.scss"
-    ], "public/css/all.css");
+    ], "public/css/all.css")
 
-    mix.scripts(['app.js', 'script.js'], 'public/js/app.js')
-    	.uglify('public/js/app.js', 'public/js');
+        .scripts([
+    	'resources/jquery.js',
+        'resources/jquery.cookie.js',
+    	'resources/velocity.js',
+    	'resources/bootstrap.js',
+    	'app.js'
+    	], 'public/js/app.js')
 
-    mix.imagemin('resources/assets/img/**/*', 'public/img');
+        .scripts([
+        'surveys.js'
+        ], 'public/js/surveys.js')
+
+        .uglify('public/js/*.js', 'public/js')
+
+        .imagemin('resources/assets/img/**/*', 'public/img');
 });

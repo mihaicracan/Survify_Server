@@ -1,1 +1,0 @@
-var other_var = "some string";

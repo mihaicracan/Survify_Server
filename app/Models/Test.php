@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Model as Eloquent;
+use Jenssegers\Mongodb\Model;
 
-class Test extends Eloquent {
+class Test extends Model {
 
     protected $collection = 'democoll';
 

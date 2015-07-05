@@ -12,7 +12,7 @@ class TestController extends Controller {
 
         $data = Test::all()->toJson();
 
-        return view("test");
+        return view("dashboard.surveys");
     }
 
 }
