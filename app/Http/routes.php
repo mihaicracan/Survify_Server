@@ -12,7 +12,15 @@
 */
 
 $app->get('/', function () use ($app) {
-    return $app->welcome();
+    return response('Nothing Here.', 404);
 });
 
-$app->get('test', 'TestController@index');
+// API routes...
+$app->get('api/test', 'APIController@getTest');
+
+// API Authenticated routes...
+$app->group(['middleware' => 'auth'], function ($app) {
+
+	$app->get('api/test/auth', 'APIController@getAuthTest');
+
+});

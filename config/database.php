@@ -12,7 +12,7 @@ return [
             'port'     => 27017,
             'username' => '',
             'password' => '',
-            'database' => 'demodb'
+            'database' => 'survify'
         ),
 
     ],

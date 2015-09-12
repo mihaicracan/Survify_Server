@@ -127,7 +127,8 @@ class Guard implements GuardContract
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     public function user()
-    {
+    {   
+
         if ($this->loggedOut) {
             return;
         }
@@ -385,7 +386,7 @@ class Guard implements GuardContract
      * @return bool
      */
     protected function hasValidCredentials($user, $credentials)
-    {
+    {   
         return !is_null($user) && $this->provider->validateCredentials($user, $credentials);
     }
 

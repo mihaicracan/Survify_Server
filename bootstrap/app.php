@@ -20,9 +20,8 @@ $app = new Laravel\Lumen\Application(
 );
 
 
-// $app->withFacades();
+$app->withFacades();
 
-// $app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -56,17 +55,17 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//     // Illuminate\Cookie\Middleware\EncryptCookies::class,
-//     // Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-//     // Illuminate\Session\Middleware\StartSession::class,
+$app->middleware([
+    // Illuminate\Cookie\Middleware\EncryptCookies::class,
+    Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+	Illuminate\Session\Middleware\StartSession::class,
 //     // Illuminate\View\Middleware\ShareErrorsFromSession::class,
 //     // Laravel\Lumen\Http\Middleware\VerifyCsrfToken::class,
-// ]);
+]);
 
-// $app->routeMiddleware([
-
-// ]);
+$app->routeMiddleware([
+    'auth' => 'App\Http\Middleware\Authenticate',
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +82,9 @@ $app->singleton(
 
 // register mongodb service provider
 $app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
+$app->register(Jenssegers\Mongodb\Auth\PasswordResetServiceProvider::class);
+
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
