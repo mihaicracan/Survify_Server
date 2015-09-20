@@ -2,27 +2,43 @@
 
 namespace App\Http\Controllers;
 
-// use DB;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Session;
 
 class APIController extends Controller 
 {
 
-    public function __construct()
+    public function __construct() 
     {
-        // $this->middleware('auth');
-    }
-    
-    public function index() {
-
+        // $this->middleware('jwt.auth');
     }
 
-    public function getTest() {
-    	die("API Test");
+    public function postLogin(Request $request)
+    {
+    	if (User::login($request)) {
+    	    die("success");
+    	} else {
+    	    die("invalid login");
+    	}
     }
 
-    public function getAuthTest() {
-    	die("API Auth Test");
+    public function postRegister(Request $request)
+    {
+    	User::register($request);
+
+    	die("created");
     }
 
+    public function postLogout(Request $request)
+    {
+    	User::logout($request);
+    	die("logged out");
+    }
+
+    public function getAuthTest(){
+    	die("merge");
+    }
 }

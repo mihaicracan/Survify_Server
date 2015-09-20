@@ -22,6 +22,8 @@ $app = new Laravel\Lumen\Application(
 
 $app->withFacades();
 
+// adding jwt configuration
+$app->configure('jwt');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,12 +61,14 @@ $app->middleware([
     // Illuminate\Cookie\Middleware\EncryptCookies::class,
     Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
 	Illuminate\Session\Middleware\StartSession::class,
-//     // Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    // Illuminate\View\Middleware\ShareErrorsFromSession::class,
 //     // Laravel\Lumen\Http\Middleware\VerifyCsrfToken::class,
 ]);
 
 $app->routeMiddleware([
-    'auth' => 'App\Http\Middleware\Authenticate',
+    'auth'        => App\Http\Middleware\Authenticate::class,
+    'jwt.auth'    => Tymon\JWTAuth\Middleware\GetUserFromToken::class,
+    'jwt.refresh' => Tymon\JWTAuth\Middleware\RefreshToken::class,
 ]);
 
 /*
@@ -83,6 +87,7 @@ $app->routeMiddleware([
 // register mongodb service provider
 $app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
 $app->register(Jenssegers\Mongodb\Auth\PasswordResetServiceProvider::class);
+$app->register(Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class);
 
 $app->withEloquent();
 

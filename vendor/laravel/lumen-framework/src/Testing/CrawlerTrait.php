@@ -58,7 +58,9 @@ trait CrawlerTrait
      */
     public function get($uri, array $headers = [])
     {
-        $this->call('GET', $uri, [], [], [], $headers);
+        $server = $this->transformHeadersToServerVars($headers);
+
+        $this->call('GET', $uri, [], [], [], $server);
 
         return $this;
     }
@@ -73,7 +75,9 @@ trait CrawlerTrait
      */
     public function post($uri, array $data = [], array $headers = [])
     {
-        $this->call('POST', $uri, $data, [], [], $headers);
+        $server = $this->transformHeadersToServerVars($headers);
+
+        $this->call('POST', $uri, $data, [], [], $server);
 
         return $this;
     }
@@ -88,7 +92,9 @@ trait CrawlerTrait
      */
     public function put($uri, array $data = [], array $headers = [])
     {
-        $this->call('PUT', $uri, $data, [], [], $headers);
+        $server = $this->transformHeadersToServerVars($headers);
+
+        $this->call('PUT', $uri, $data, [], [], $server);
 
         return $this;
     }
@@ -103,7 +109,9 @@ trait CrawlerTrait
      */
     public function patch($uri, array $data = [], array $headers = [])
     {
-        $this->call('PATCH', $uri, $data, [], [], $headers);
+        $server = $this->transformHeadersToServerVars($headers);
+
+        $this->call('PATCH', $uri, $data, [], [], $server);
 
         return $this;
     }
@@ -118,9 +126,51 @@ trait CrawlerTrait
      */
     public function delete($uri, array $data = [], array $headers = [])
     {
-        $this->call('DELETE', $uri, $data, [], [], $headers);
+        $server = $this->transformHeadersToServerVars($headers);
+
+        $this->call('DELETE', $uri, $data, [], [], $server);
 
         return $this;
+    }
+
+    /**
+     * Send the given request through the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return $this
+     */
+    public function handle(Request $request)
+    {
+        $this->currentUri = $request->fullUrl();
+
+        $this->response = $this->app->prepareResponse($this->app->handle($request));
+
+        return $this;
+    }
+
+    /**
+     * Transform headers array to array of $_SERVER vars with HTTP_* format.
+     *
+     * @param  array $headers
+     *
+     * @return array
+     */
+    protected function transformHeadersToServerVars(array $headers)
+    {
+        $server = [];
+        $prefix = 'HTTP_';
+
+        foreach ($headers as $name => $value) {
+            $name = strtr(strtoupper($name), '-', '_');
+
+            if (! starts_with($name, $prefix) && $name != 'CONTENT_TYPE') {
+                $name = $prefix.$name;
+            }
+
+            $server[$name] = $value;
+        }
+
+        return $server;
     }
 
     /**
@@ -237,6 +287,17 @@ trait CrawlerTrait
     }
 
     /**
+     * Assert that a given string is not seen on the page.
+     *
+     * @param  string  $text
+     * @return $this
+     */
+    protected function dontSee($text)
+    {
+        return $this->see($text, true);
+    }
+
+    /**
      * Assert that the response contains JSON.
      *
      * @param  array|null  $data
@@ -257,7 +318,7 @@ trait CrawlerTrait
     {
         $this->seeJson();
 
-        if (!is_null($data)) {
+        if (! is_null($data)) {
             return $this->seeJson($data);
         }
     }
@@ -287,15 +348,11 @@ trait CrawlerTrait
      */
     public function seeJson(array $data = null)
     {
-        if (is_null($data)) {
-            $this->assertJson(
-                $this->response->getContent(), "Failed asserting that JSON returned [{$this->currentUri}]."
-            );
+        $this->assertJson(
+            $this->response->getContent(), "Failed asserting that JSON returned [{$this->currentUri}]."
+        );
 
-            return $this;
-        }
-
-        return $this->seeJsonContains($data);
+        return is_null($data) ? $this : $this->seeJsonContains($data);
     }
 
     /**
@@ -310,7 +367,7 @@ trait CrawlerTrait
             json_decode($this->response->getContent(), true)
         ));
 
-        foreach (array_sort_recursive($data) as $key => $value) {
+        foreach (array_sort_recursive(json_decode(json_encode($data), true)) as $key => $value) {
             $expected = $this->formatToExpectedJson($key, $value);
 
             $this->assertTrue(
@@ -352,7 +409,7 @@ trait CrawlerTrait
      */
     protected function seeStatusCode($status)
     {
-        $this->assertEquals($this->response->getStatusCode(), $status);
+        $this->assertEquals($status, $this->response->getStatusCode());
 
         return $this;
     }
@@ -406,10 +463,10 @@ trait CrawlerTrait
     {
         $link = $this->crawler->selectLink($name);
 
-        if (!count($link)) {
+        if (! count($link)) {
             $link = $this->filterByNameOrId($name, 'a');
 
-            if (!count($link)) {
+            if (! count($link)) {
                 throw new InvalidArgumentException(
                     "Could not find a link with a body, name, or ID attribute of [{$name}]."
                 );
@@ -502,7 +559,7 @@ trait CrawlerTrait
      */
     protected function fillForm($buttonText, $inputs = [])
     {
-        if (!is_string($buttonText)) {
+        if (! is_string($buttonText)) {
             $inputs = $buttonText;
 
             $buttonText = null;
@@ -560,7 +617,7 @@ trait CrawlerTrait
     {
         $crawler = $this->filterByNameOrId($filter);
 
-        if (!count($crawler)) {
+        if (! count($crawler)) {
             throw new InvalidArgumentException(
                 "Nothing matched the filter [{$filter}] CSS query provided for [{$this->currentUri}]."
             );
@@ -676,7 +733,7 @@ trait CrawlerTrait
             $uri = substr($uri, 1);
         }
 
-        if (!starts_with($uri, 'http')) {
+        if (! starts_with($uri, 'http')) {
             $uri = $this->baseUrl.'/'.$uri;
         }
 

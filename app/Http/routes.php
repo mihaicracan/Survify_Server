@@ -16,11 +16,13 @@ $app->get('/', function () use ($app) {
 });
 
 // API routes...
-$app->get('api/test', 'APIController@getTest');
+$app->post('api/register', 'APIController@postRegister');
+$app->post('api/login', 'APIController@postLogin');
+$app->post('api/logout', 'APIController@postLogout');
 
 // API Authenticated routes...
-$app->group(['middleware' => 'auth'], function ($app) {
+$app->group(['middleware' => 'jwt.auth'], function ($app) {
 
-	$app->get('api/test/auth', 'APIController@getAuthTest');
+	$app->post('api/test/auth', 'App\Http\Controllers\APIController@getAuthTest');
 
 });
