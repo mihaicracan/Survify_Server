@@ -15,12 +15,16 @@ $app->get('/', function () use ($app) {
     return response('Nothing Here.', 404);
 });
 
-// API routes...
+/**
+ * API routes.
+ */
 $app->post('api/register', 'APIController@postRegister');
 $app->post('api/login', 'APIController@postLogin');
 $app->post('api/logout', 'APIController@postLogout');
 
-// API Authenticated routes...
+/**
+ * API Authenticated routes.
+ */
 $app->group(['middleware' => 'jwt.auth'], function ($app) {
 
 	$app->post('api/test/auth', 'App\Http\Controllers\APIController@getAuthTest');

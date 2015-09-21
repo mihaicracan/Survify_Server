@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Model;
+use Exception;
 use Jenssegers\Mongodb\Eloquent\SoftDeletes;
 
-use Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -20,6 +19,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	protected $dates = ['deleted_at'];
     protected $collection = 'users';
 
+    /**
+     * Authenticate user.
+     *
+     * @param  \Request  $request
+     * @return string
+     */
     public static function login($request) 
     {
     	$email    = $request->input("email");
@@ -27,27 +32,57 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     	$remember = $request->input("remember");
 
     	if ($token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
-            echo $token;
-    	    return true;
+            return $token;
     	}
     	
-    	return false;
+    	throw new Exception("invalidCredentials", 401);
     }
 
+    /**
+     * Register user.
+     *
+     * @param  \Request  $request
+     * @return void
+     */
     public static function register($request)
-    {
+    {   
     	$user = new User;
-    	$user->first_name = $request->input("first_name");
-    	$user->last_name  = $request->input("last_name");
+
+        $user->validate($request, [
+            'firstName' => 'required|max:255',
+            'lastName'  => 'required|max:255'
+        ]);
+
+    	$user->first_name = $request->input("firstName");
+    	$user->last_name  = $request->input("lastName");
     	$user->email      = $request->input("email");
     	$user->password   = bcrypt($request->input("password"));
 
     	$user->save();
     }
 
+    /**
+     * Invalidate user token.
+     *
+     * @param  \Request  $request
+     * @return void
+     */
     public static function logout($request)
     {
     	JWTAuth::invalidate(JWTAuth::getToken());
+    }
+
+    /**
+     * Get authenticated user.
+     *
+     * @param  \Request  $request
+     * @return \App\Models\User
+     */
+    public static function getAuthenticated($request)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        return $user;
     }
 
 }

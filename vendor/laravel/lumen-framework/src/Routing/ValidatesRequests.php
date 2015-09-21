@@ -49,7 +49,7 @@ trait ValidatesRequests
      * @return \Illuminate\Http\Response
      */
     protected function buildFailedValidationResponse(Request $request, array $errors)
-    {
+    {   
         if ($request->ajax() || $request->wantsJson()) {
             return new JsonResponse($errors, 422);
         }

@@ -35,7 +35,13 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
-    {
-        return parent::render($request, $e);
+    {   
+        if ($e->getCode() < 400) {
+            $code = 500;
+        } else {
+            $code = $e->getCode();
+        }
+
+        return response()->json(array('error' => $e->getMessage()), $code);
     }
 }

@@ -2,43 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Models\User;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Session;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+use App\Models\User;
 
 class APIController extends Controller 
 {
 
+    /**
+     * APIController constructor.
+     */
     public function __construct() 
     {
         // $this->middleware('jwt.auth');
     }
 
+    /**
+     * Retrieve authentication token.
+     *
+     * @param  \Request  $request
+     * @return \Response
+     */
     public function postLogin(Request $request)
-    {
-    	if (User::login($request)) {
-    	    die("success");
-    	} else {
-    	    die("invalid login");
-    	}
+    {   
+        $token = User::login($request);
+
+        return response($token);
     }
 
+    /**
+     * Create a new user.
+     *
+     * @param  \Request  $request
+     * @return \Response
+     */
     public function postRegister(Request $request)
-    {
+    {   
     	User::register($request);
 
-    	die("created");
+    	return response(array('success' => true), 201);
     }
 
+    /**
+     * Invalidate current token.
+     *
+     * @param  \Request  $request
+     * @return \Response
+     */
     public function postLogout(Request $request)
     {
     	User::logout($request);
-    	die("logged out");
+    	
+        return response(array('success' => true), 201);
     }
 
-    public function getAuthTest(){
+    public function getAuthTest(Request $request){
+        $user = User::getAuthenticated($request);
+        var_dump($user);
     	die("merge");
     }
 }
