@@ -27,6 +27,4 @@ $app->post('api/logout', 'APIController@postLogout');
  */
 $app->group(['middleware' => 'jwt.auth'], function ($app) {
 
-	$app->post('api/test/auth', 'App\Http\Controllers\APIController@getAuthTest');
-
 });

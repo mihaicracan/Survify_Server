@@ -7,6 +7,7 @@ use Illuminate\Validation\Validator;
 use Laravel\Lumen\Routing\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Exception;
 
 class Model extends Eloquent
 {   
@@ -19,7 +20,12 @@ class Model extends Eloquent
      * @var array
      */
     private $messages = array(
-        'required'    => 'required :attribute'
+        'required' => 'required :attribute',
+        'email'    => 'invalid :attribute',
+        'min'      => 'invalid :attribute',
+        'max'      => 'invalid :attribute',
+        'numeric'  => 'invalid :attribute',
+        'unique'   => 'duplicated :attribute',
     );
 
     /**
@@ -36,7 +42,9 @@ class Model extends Eloquent
         $validator = $this->getValidationFactory()->make($request->all(), $rules, $this->messages, $customAttributes);
 
         if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
+            $errors = $this->formatValidationErrors($validator);
+
+            throw new Exception($errors[0], 422);
         }
     }
 

@@ -29,7 +29,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
     	$email    = $request->input("email");
     	$password = $request->input("password");
-    	$remember = $request->input("remember");
 
     	if ($token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
             return $token;

@@ -31,7 +31,7 @@ class APIController extends Controller
     {   
         $token = User::login($request);
 
-        return response($token);
+        return response(array('success' => true, 'token' => $token));
     }
 
     /**
@@ -58,11 +58,5 @@ class APIController extends Controller
     	User::logout($request);
     	
         return response(array('success' => true), 201);
-    }
-
-    public function getAuthTest(Request $request){
-        $user = User::getAuthenticated($request);
-        var_dump($user);
-    	die("merge");
     }
 }
