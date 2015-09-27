@@ -27,10 +27,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public static function login($request) 
     {
-    	$email    = $request->input("email");
-    	$password = $request->input("password");
+        $user = new User;
 
-    	if ($token = JWTAuth::attempt(['email' => $email, 'password' => $password])) {
+        $user->validate($request, [
+            'email'    => 'required|email',
+            'password' => 'required'
+        ]);
+
+    	if ($token = JWTAuth::attempt(['email' => $request->input("email"), 'password' => $request->input("password")])) {
             return $token;
     	}
     	
@@ -49,7 +53,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         $user->validate($request, [
             'firstName' => 'required|max:255',
-            'lastName'  => 'required|max:255'
+            'lastName'  => 'required|max:255',
+            'email'     => 'required|email|unique:users,email|max:255',
+            'password'  => 'required|max:255'
         ]);
 
     	$user->first_name = $request->input("firstName");
